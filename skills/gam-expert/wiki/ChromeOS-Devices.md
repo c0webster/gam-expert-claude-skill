@@ -68,7 +68,8 @@ gam oauth create
  
 ```
 <OrgUnitPath> ::= /|(/<String)+
-<QueryCrOS> ::= <String> See: https://support.google.com/chrome/a/answer/1698333
+<QueryCrOS> ::= <String>:<String>
+        See: https://support.google.com/chrome/a/answer/1698333
 <CommandID> ::= <String>
 <CrOSID> ::= <String>
 <CrOSIDList> ::= "<CrOSID>(,<CrOSID>)*"
@@ -409,10 +410,12 @@ gam update ou csvkmd cros.csv keyfield OU datafield deviceId add croscsvdata dev
         reenable
 
 gam <CrOSTypeEntity> update action <CrOSAction> [acknowledge_device_touch_requirement]
-        [actionbatchsize <Integer>]
+        [actionbatchsize <Integer>] [maxtodeprov <Integer>]
 ```
 ChromeOS devices are now processed in batches.
 The batch size defaults to 10, the `actionbatchsize <Integer>` option can be used to set a batch size between 10 and 250.
+
+### Deprovisioning
 
 As deprovisioning ChromeOS devices is not reversible, you must enter `acknowledge_device_touch_requirement`
 when `<CrOSAction>` is `deprovision_same_model_replace`, `deprovision_different_model_replace`,
@@ -424,11 +427,25 @@ each device. Please also be aware that deprovisioning can have an effect on your
 
 See https://support.google.com/chrome/a/answer/3523633 for full details.
 
+Prior to version 7.43.05, all devices in `<CrOSEntity>` would be deprovisioned. When `<CrOSEntity>`
+was derived from an OU, this was desirable. However, if `<CrOSEntity>` was derived from a query,
+more devices than desired may have been deprovisioned. In version 7.43.05 and higher,
+GAM defaults to not deprovisioning devices if the number of devices exceeds one.
+
+The  option `max_to_deprov <Integer>` can be used to verify the number of devices to be deprovisioned;
+no deprovisions are processed if the number of devices in `<CrOSEntity>` exceeds `<Integer>`;
+the default value is one; set `<Number>` to 0 for no limit.
+
+When `<CrOSEntity>` is derived from an OU, set `max_to_deprov 0` and all devices will be deprovisioned.
+
+When `<CrOSEntity>` is derived from a query, e.g., `cros_sn <SerialNumber>`, the default `max_to_deprov 1`
+protects you from accidentally deprovisioning more devices than desired.
+
 ## Send remote commands to ChromeOS devices
 Thanks to Jay for most of the following.
 
 Send a remote command to the managed Chrome OS device. It's important to note that the device must be in a proper state to accept the command or an error may be returned.
-For example, the `reboot`, `set_volume` and `take_a_screenshot` commands only work if the device is configured in auto-start kiosk app mode.
+For example, the `set_volume` and `take_a_screenshot` commands only work if the device is configured in auto-start kiosk app mode.
 
 The `wipe_users` and `remote_powerwash` commands will erase all user data on the device and the `remote_powerwash` command will require that the device is physically reconnected to the
 WiFi network and re-enrolled before it can be managed again. These commands require the `doit` argument so that the admin confirms the potential loss of user data and management.

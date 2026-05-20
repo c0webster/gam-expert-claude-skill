@@ -40,6 +40,7 @@
 - [Print user list](#print-user-list)
 - [Display user counts](#display-user-counts)
 - [Verify domain membership](#verify-domain-membership)
+- [Guest Users](#guest-users)
 
 ## API documentation
 * [Directory API - Users](https://developers.google.com/admin-sdk/directory/reference/rest/v1/users)
@@ -169,6 +170,7 @@ queries "`"orgUnitPath=\'/Students/Lower\ School/2027\'`",`"orgUnitPath=\'/Stude
         fullname|
         gender|
         givenname|firstname|
+        guestaccountinfo|
         id|
         ims|im|
         includeinglobaladdresslist|gal|
@@ -176,6 +178,7 @@ queries "`"orgUnitPath=\'/Students/Lower\ School/2027\'`",`"orgUnitPath=\'/Stude
         isdelegatedadmin|admin|isadmin|
         isenforcedin2sv|is2svenforced|
         isenrolledin2sv|is2svenrolled|
+	isguestuser|
         ismailboxsetup|
         keyword|keywords|
         language|languages|
@@ -326,6 +329,20 @@ You can remove all instances of a `<UserMultiAttribute>` with `<UserClearAttribu
         <UserMultiAttribute>|
         <UserClearAttribute>
 ```
+```
+<UserMultiAttributeFilterName> ::=
+        address|addresses|
+        externalid|externalids|
+        im|ims|
+        keyword|keywords|
+        location|locations|
+        orgainzation|organizations|
+        otheremail|otheremails|
+        phone|phones|
+        relation|relations|
+        website|websites
+```
+
 ## Admin Console User Info
 When defining a user in the admin console, there is a section labelled `Employee information` with the following items:
 * `Employee ID`
@@ -649,7 +666,7 @@ If the mailbox is setup, a zero return code is returned; if the retries are exha
 ```
 gam update user <UserItem> [ignorenullpassword] <UserAttribute>*
         [verifynotinvitable|alwaysevict] [noactionifalias]
-        [updateprimaryemail <RESearchPattern> <RESubstitution>]
+        [updateprimaryemail <RESearchPattern> <RESubstitution> [preview]]
         [updateoufromgroup <FileName> [charset <Charset>]
             [columndelimiter <Character>] [noescapechar <Boolean>] [quotechar <Character>]
             [fields <FieldNameList>] [keyfield <FieldName>] [datafield <FieldName>]]
@@ -671,7 +688,7 @@ gam update user <UserItem> [ignorenullpassword] <UserAttribute>*
         [logpassword <FileName>]
 gam update users <UserTypeEntity> [ignorenullpassword] <UserAttribute>*
         [verifynotinvitable|alwaysevict] [noactionifalias]
-        [updateprimaryemail <RESearchPattern> <RESubstitution>]
+        [updateprimaryemail <RESearchPattern> <RESubstitution> [preview]]
         [updateoufromgroup <FileName> [charset <Charset>]
             [columndelimiter <Character>] [noescapechar <Boolean>] [quotechar <Character>]
             [fields <FieldNameList>] [keyfield <FieldName>] [datafield <FieldName>]]
@@ -692,7 +709,7 @@ gam update users <UserTypeEntity> [ignorenullpassword] <UserAttribute>*
         [logpassword <FileName>]
 gam <UserTypeEntity> update users [ignorenullpassword] <UserAttribute>*
         [verifynotinvitable|alwaysevict] [noactionifalias]
-        [updateprimaryemail <RESearchPattern>`< <RESubstitution>]
+        [updateprimaryemail <RESearchPattern> <RESubstitution> [preview]]
         [updateoufromgroup <FileName> [charset <Charset>]
             [columndelimiter <Character>] [noescapechar <Boolean>] [quotechar <Character>]
             [fields <FieldNameList>] [keyfield <FieldName>] [datafield <FieldName>]]
@@ -795,16 +812,18 @@ You can simply update a user's primary email address with the `primaryemail` opt
 ```
 gam update user userold@domain.com primaryemail usernew@domain.com
 ```
-The `updateprimaryemail <RESearchPattern> <RESubstitution>` option allows modification of the user's current primary email address.
+The `updateprimaryemail <RESearchPattern> <RESubstitution> [preview]` option allows modification of the user's current primary email address.
 
-For example, to change the domain of a set of users from the current domain to newdomain.com:
+For example, to change the domain of a set of users from the current domain.com to newdomain.com:
 ```
-gam ou /Path/To/Ou update user updateprimaryemail "^(.+)@.*$" "\1@newdomain.com"
+gam ou /Path/To/Ou update user updateprimaryemail "^(.+)@domain.com$" "\1@newdomain.com"
 ```
 To change graduating students email addresses from flastname@domain.com to flastname_grad@domain.com:
 ```
 gam ou /Path/To/Ou update user updateprimaryemail "^(.+)@(.+)$" "\1_grad@\2"
 ```
+The `preview` option allows verification of the primary email address changes before commiting the changes.
+
 If the user's current primary email address does not match the <REMatchPattern> then no modification is made.
 
 ## Update a user's attributes with JSON data
@@ -968,6 +987,8 @@ gam info user [<UserItem>]
         [(products|product <ProductIDList>)|(skus|sku <SKUIDList>)]
         [noschemas|allschemas|(schemas|custom|customschemas <SchemaNameList>)]
         [userview] <UserFieldName>* [fields <UserFieldNameList>]
+        (filtermultiattrtype <UserMultiAttributeFilterName> <String>)*
+        (filtermultiattrcustom <UserMultiAttributeFilterName> <String>)*
         [formatjson]
 ```
 ### Display information about multiple users
@@ -981,6 +1002,8 @@ gam info users <UserTypeEntity>
         [(products|product <ProductIDList>)|(skus|sku <SKUIDList>)]
         [noschemas|allschemas|(schemas|custom|customschemas <SchemaNameList>)]
         [userview] <UserFieldName>* [fields <UserFieldNameList>]
+        (filtermultiattrtype <UserMultiAttributeFilterName> <String>)*
+        (filtermultiattrcustom <UserMultiAttributeFilterName> <String>)*
         [formatjson]
 gam <UserTypeEntity> info users
         [quick]
@@ -991,6 +1014,8 @@ gam <UserTypeEntity> info users
         [(products|product <ProductIDList>)|(skus|sku <SKUIDList>)]
         [noschemas|allschemas|(schemas|custom|customschemas <SchemaNameList>)]
         [userview] <UserFieldName>* [fields <UserFieldNameList>]
+        (filtermultiattrtype <UserMultiAttributeFilterName> <String>)*
+        (filtermultiattrcustom <UserMultiAttributeFilterName> <String>)*
         [formatjson]
 ```
 For `info users`, unlike all other GAM commands, a `<UserTypeEntity>` value of `all users` is actually `all users_ns_susp` not `all users_ns`.
@@ -1028,6 +1053,11 @@ By default, Gam displays fields that only an adminstrator can view.
 By default, Gam displays all fields for a user.
 * `<UserFieldName>* [fields <UserFieldNameList>]` - Only display selected fields.
 
+By default, all instances of `<UserMultiAttribute>` are displayed, use these options to only display instances
+of a specified `type` or `customType`.
+* `filtermultiattrtype <UserMultiAttributeFilterName> <String>` - Display `<UserMultiAttributeFilterName>` if its `type` is `<String>`
+* `filtermultiattrcustom <UserMultiAttributeFilterName> <String>` - Display `<UserMultiAttributeFilterName>` if its `customType` is `<String>`
+
 By default, Gam displays the information as an indented list of keys and values.
 * `formatjson` - Display the fields in JSON format.
 
@@ -1059,6 +1089,8 @@ gam print users [todrive <ToDriveAttribute>*]
         [schemas|custom|customschemas all|<SchemaNameList>]
         [emailpart|emailparts|username]
         [userview] [allfields|basic|full|(<UserFieldName>*|fields <UserFieldNameList>)]
+        (filtermultiattrtype <UserMultiAttributeFilterName> <String>)*
+        (filtermultiattrcustom <UserMultiAttributeFilterName> <String>)*
         [delimiter <Character>] [sortheaders [<Boolean>]] [scalarsfirst [<Boolean>]]
         [formatjson [quotechar <Character>]] [quoteplusphonenumbers]
         [issuspended <Boolean>] [isarchived <Boolean>] [aliasmatchpattern <REMatchPattern>]
@@ -1085,6 +1117,8 @@ gam print users [todrive <ToDriveAttribute>*] select <UserTypeEntity>
         [schemas|custom|customschemas all|<SchemaNameList>]
         [emailpart|emailparts|username]
         [userview] [basic|full|allfields|(<UserFieldName>*|fields <UserFieldNameList>)]
+        (filtermultiattrtype <UserMultiAttributeFilterName> <String>)*
+        (filtermultiattrcustom <UserMultiAttributeFilterName> <String>)*
         [delimiter <Character>] [sortheaders [<Boolean>]] [scalarsfirst [<Boolean>]]
         [formatjson [quotechar <Character>]] [quoteplusphonenumbers]
         [issuspended <Boolean>] [isarchived <Boolean>] [aliasmatchpattern <REMatchPattern>]
@@ -1099,6 +1133,8 @@ gam <UserTypeEntity> print users [todrive <ToDriveAttribute>*]
         [schemas|custom|customschemas all|<SchemaNameList>]
         [emailpart|emailparts|username]
         [userview] [basic|full|allfields|(<UserFieldName>*|fields <UserFieldNameList>)]
+        (filtermultiattrtype <UserMultiAttributeFilterName> <String>)*
+        (filtermultiattrcustom <UserMultiAttributeFilterName> <String>)*
         [delimiter <Character>] [sortheaders [<Boolean>]] [scalarsfirst [<Boolean>]]
         [formatjson [quotechar <Character>]] [quoteplusphonenumbers]
         [issuspended <Boolean>] [isarchived <Boolean>] [aliasmatchpattern <REMatchPattern>]
@@ -1133,6 +1169,11 @@ By default, Gam displays only the primary email address for each user.
 * `<UserFieldName>* [fields <UserFieldNameList>]` - Only display selected fields.
 * `schemas|custom all` - Display custom schema information for all schemas.
 * `schemas|custom <SchemaNameList>` - Display all fields or selected fields of the specified custom schemas
+
+By default, all instances of `<UserMultiAttribute>` are displayed, use these options to only display instances
+of a specified `type` or `customType`.
+* `filtermultiattrtype <UserMultiAttributeFilterName> <String>` - Display `<UserMultiAttributeFilterName>` if its `type` is `<String>`
+* `filtermultiattrcustom <UserMultiAttributeFilterName> <String>` - Display `<UserMultiAttributeFilterName>` if its `customType` is `<String>`
 
 By default, when aliases are displayed, all aliases are displayed. Use `aliasmatchpattern <REMatchPattern>`
 to limit the display of aliases to those that match `<REMatchPattern>`.
@@ -1384,3 +1425,11 @@ testuser1@domain.com,118080758787650801331,True,Test User 1
 testuserxxx@domain.com,,False,Test User XXX
 testuser2@domain.com,107344800159717682514,True,Test User 2
 ```
+
+## Guest Users
+* See: https://support.google.com/a/answer/16558545
+```
+gam create guestuser <EmailAddress>
+```
+
+Guest users are in the OU "/Workspace guests".

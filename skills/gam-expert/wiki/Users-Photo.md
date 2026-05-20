@@ -1,5 +1,6 @@
 # Users - Photo
 - [API documentation](#api-documentation)
+- [Notes](#notes)
 - [Definitions](#definitions)
 - [Upload a user's photo from a default file](#upload-a-users-photo-from-a-default-file)
 - [Upload a user's photo specifying file name](#upload-a-users-photo-specifying-file-name)
@@ -7,10 +8,15 @@
 - [Upload a user's photo specifying a Google Drive owner and file name](#upload-a-users-photo-specifying-a-google-drive-owner-and-file-name)
 - [Download a user's photo](#download-a-users-photo)
 - [Delete a user's photo](#delete-a-users-photo)
+- [Update photo fails to change user's photo](#update-photo-fails-to-change-users-photo)
 - [Download a user's profile photo](Users-Profile-Photo)
 
 ## API documentation
 * [Directory API - Users Photos](https://developers.google.com/admin-sdk/directory/reference/rest/v1/users.photos)
+
+## Notes
+As of version 7.34.09, `gam <UserTypeEntity> update photo` was updated to delete the user's existing photo
+before performing the update as the API update will succeed but not replace a user's existing self-set photo.
 
 ## Definitions
 * [`<DriveFileEntity>`](Drive-File-Selection)
@@ -81,3 +87,7 @@ By default, the Base64 encoded data is dumped to stdout.
 ```
 gam <UserTypeEntity> delete|del photo
 ```
+
+## Update photo fails to change user's photo
+If you use `gam <UserTypeEntity> update photo ...` to change a user's photo and the command succeeds
+but the photo doesn't change, use `gam <UserTypeEntity> delete photo` first and then do the update.

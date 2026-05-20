@@ -1,5 +1,6 @@
 # Users - Tokens
 - [API documentation](#api-documentation)
+- [Get Google Cloud organization ID for your workspace](#get-google-cloud-organization-id-for-your-workspace)
 - [Definitions](#definitions)
 - [Delete a user's token](#delete-a-users-token)
 - [Display individual user's tokens](#display-individual-users-tokens)
@@ -8,6 +9,15 @@
 
 ## API documentation
 * [Directory API - Tokens](https://developers.google.com/admin-sdk/directory/reference/rest/v1/tokens)
+
+## Get Google Cloud organization ID for your workspace
+This ID is used by `gam print|show token gcpdetails`; to eliminate additional API calls,
+you can get the value and store it in the `gam.cfg/gcp_org_id` variable.
+```
+$ gam info gcporgid
+organizations/906207637890
+$ gam config gcp_org_id organizations/906207637890 save
+```
 
 ## Definitions
 * [`<UserTypeEntity>`](Collections-of-Users)
@@ -23,20 +33,27 @@ gam <UserTypeEntity> delete|del token|tokens clientid <ClientID>
 ```
 gam <UserTypeEntity> print tokens|token [todrive <ToDriveAttributes>*] [clientid <ClientID>]
         [orderby clientid|id|appname|displaytext] [delimiter <Character>]
+        [gcpdetails]
 gam <UserTypeEntity> show tokens|token|3lo|oauth [clientid <ClientID>]
         [orderby clientid|id|appname|displaytext]
+        [gcpdetails]
 gam print tokens|token [todrive <ToDriveAttributes>*] [clientid <ClientID>]
         [orderby clientid|id|appname|displaytext] [delimiter <Character>]
         [<UserTypeEntity>]
+        [gcpdetails]
 gam show tokens|token [clientid <ClientID>]
         [orderby clientid|id|appname|displaytext] [delimiter <Character>]
         [<UserTypeEntity>]
+        [gcpdetails]
 ```
 By default, all client tokens for a user are displayed, use `clientid <ClientID>` to display a specific client token.
 
 For each user, select the order of token presentation:
 * `orderby clientid|id` - Display each user's tokens ordered by Client ID
 * `orderby appname|displaytext` - Display each user's tokens ordered by App Name
+
+Use `gcpdetails` to get project information about the client; you get the project number
+and whether it is an internal project. In order to accurately determine if a project is internal, your GAM admin user must have at least the `Browser` [IAM role for the entire GCP organization](https://docs.cloud.google.com/iam/docs/roles-permissions/browser) which allows them to lookup basic metadata about your organization projects. If your admin is not able to see all GCP projects in your organization results may not be accurate.
 
 For `print tokens`:
 * `delimiter <Character>` - Separate `scopes` entries with `<Character>`; the default value is `csv_output_field_delimiter` from `gam.cfg`.

@@ -251,11 +251,10 @@ writes the credentials into the file oauth2.txt.
 ```
 gamteam@server:/Users/gamteam$ rm -f /Users/gamteam/GAMConfig/oauth2.txt
 gamteam@server:/Users/gamteam$ gam version
-WARNING: Config File: /Users/gamteam/GAMConfig/gam.cfg, Section: DEFAULT, Item: oauth2_txt, Value: /Users/gamteam/GAMConfig/oauth2.txt, Not Found
-GAM 7.34.05 - https://github.com/GAM-team/GAM - pyinstaller
+GAM 7.43.08 - https://github.com/GAM-team/GAM - pyinstaller
 GAM Team <google-apps-manager@googlegroups.com>
-Python 3.14.3 64-bit final
-macOS Tahoe 26.3 arm64
+Python 3.14.4 64-bit final
+macOS Tahoe 26.5 arm64
 Path: /Users/gamteam/bin/gam7
 Config File: /Users/gamteam/GAMConfig/gam.cfg, Section: DEFAULT, customer_id: my_customer, domain: domain.com
 
@@ -1035,10 +1034,9 @@ writes the credentials into the file oauth2.txt.
 ```
 C:\>del C:\GAMConfig\oauth2.txt
 C:\>gam version
-WARNING: Config File: C:\GAMConfig\gam.cfg, Section: DEFAULT, Item: oauth2_txt, Value: C:\GAMConfig\oauth2.txt, Not Found
-GAM 7.34.05 - https://github.com/GAM-team/GAM - pythonsource
+GAM 7.43.08 - https://github.com/GAM-team/GAM - pythonsource
 GAM Team <google-apps-manager@googlegroups.com>
-Python 3.14.3 64-bit final
+Python 3.14.4 64-bit final
 Windows 11 10.0.26200 AMD64
 Path: C:\GAM7
 Config File: C:\GAMConfig\gam.cfg, Section: DEFAULT, customer_id: my_customer, domain: domain.com

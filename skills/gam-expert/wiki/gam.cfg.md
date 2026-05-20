@@ -355,17 +355,6 @@ enable_dasa
         admin_email, customer_id and domain must be set when enable_dasa is True,
         customer_id may not be set to my_customer
         Signal file: OldGamPath/enabledasa.txt
-enforce_expansive_access
-        The default value for option `enforceexpansiveaccess` in all commands that delete or update
-        drive file ACLs/permissions.
-        gam <UserTypeEntity> delete permissions
-        gam <UserTypeEntity> delete drivefileacl
-        gam <UserTypeEntity> update drivefileacl
-        gam <UserTypeEntity> copy drivefile
-        gam <UserTypeEntity> move drivefile
-        gam <UserTypeEntity> transfer ownership
-        gam <UserTypeEntity> claim ownership
-        Default: True
 event_max_results
         When retrieving lists of Calendar events from API,
         how many should be retrieved in each API call
@@ -375,6 +364,21 @@ extra_args
         Path to extra_args.txt
         Default: Blank
         Data file: extra_args.txt
+gcp_org_id
+        The Google Cloud organization ID for your workspace.
+        Default: Blank
+        This value is used by the following commands;
+        by setting the value, additional API calls are eliminated.
+        gam create project
+        gam create gcpfolder
+        gam create|update|delete caalevel
+        gam print|show caalevels
+        gam print|show tokens gcpdetails
+
+        You can get and save the `gcp_org_id` value with these commands:
+        $ gam info gcporgid
+        organizations/906207637890
+        $ gam config gcp_org_id organizations/906207637890 save
 gmail_cse_incert_dir
         Directory for the S/MIME certificate files used by Gmail Client Side Encryption.
         Default: Blank
@@ -1008,7 +1012,6 @@ drive_max_results = 1000
 email_batch_size = 50
 enable_dasa = false
 enable_gcloud_reauth = false
-enforce_expansive_access = true
 event_max_results = 250
 extra_args = ''
 gmail_cse_incert_dir = ''

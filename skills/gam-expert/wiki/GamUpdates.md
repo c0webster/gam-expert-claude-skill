@@ -10,6 +10,452 @@ Add the `-s` option to the end of the above commands to suppress creating the `g
 
 See [Downloads-Installs-GAM7](https://github.com/GAM-team/GAM/wiki/Downloads-Installs) for Windows or other options, including manual installation
 
+### 7.43.08
+
+Fixed bug and formatting issues in `gam info device <DeviceEntity>`.
+
+### 7.43.07
+
+Improved validation of `<QueryCrOS>`, `<QueryDevice>` and `<QueryMobile>`.
+
+### 7.43.06
+
+Updated commands that use `<QueryCrOS>`, `<QueryDevice>` or `<QueryMobile>` to validate
+that it is of the form `field:value` and that `value` does not contain a '?'.
+Without validation, Google can return many more devices than are expected.
+
+### 7.43.05
+
+Added option `matchfield attendeesorganizer <Boolean> <EmailAddressEntity>` to `<EventMatchProperty>`
+that is used in commands that process events. The match is true if all of the addresses in `<EmailAddressEntity>`
+are present as attendees in the event and are an organizer or not based on `<Boolean>`.
+
+Added option `max_to_deprov <Integer>` to `gam update cros <CrOSEntity> action <CrOSAction>`
+that is used when `<CrOSAction>` is any of the following:
+```
+deprovision_different_model_replace|
+deprovision_different_model_replacement|
+deprovision_retiring_device|
+deprovision_same_model_replace|
+deprovision_same_model_replacement|
+deprovision_upgrade_transfer
+```
+`max_to_deprov <Integer>` - No deprovisions are processed if the number of devices in `<CrOSEntity>` exceeds `<Integer>`;
+the default value is one; set `<Integer>` to 0 for no limit.
+
+### 7.43.04
+
+Added option `include_suspended_zeros [<Boolean>]` to `gam print vaultcounts` that causes
+GAM to generate zero count lines for suspended users with zero items as well as non-suspended users.
+
+### 7.43.03
+
+Added option `parentpathonly [<Boolean>]` to the following commands that causes GAM
+to display only the parent folder names when displaying the path to a file.
+```
+gam <UserTypeEntity> info drivefile ... filepath|fullpath
+gam <UserTypeEntity> show fileinfo ... filepath|fullpath
+gam <UserTypeEntity> print|show filepath
+gam <UserTypeEntity> print filelist ... filepath|fullpath
+```
+
+### 7.43.02
+
+Added option `maxactivities <Integer>` to `gam <UserTypeEntity> print driveactivity` to limit
+the number of activities displayed; the default is 0, no limit.
+
+### 7.43.01
+
+Updated `gam info user` and `gam print users` to display guest user attributes: `isGuestUser, guestAccountInfo`
+
+Expanded `<UserTypeEntity>` to allow specification of guest users.
+  * See [Collections of Users](Collections-of-Users)
+
+### 7.42.00
+
+In versions prior to 7.42.00, when `redirect csv <FileName>` was used, GAM did not open and write `<FileName>`
+until all processing was complete; if `<FileName>` was not accessible, an error was generated
+and no results were saved. Now, `<FileName>` is opened initially to verify accessiblity
+and then written when processing is complete.
+
+In the unlikely event that this causes issues, you can do `redirect csv <FileName> delayopen`
+to get the previous behavior.
+
+### 7.41.03
+
+Fixed bug in the following:
+Added the following to `<RowValueFilter>` used in CSV input/output row filtering; these are
+synonyms for `count` and `countrange`.
+```
+[(any|all):]number<Operator><Number>|
+[(any|all):]numberrange!=<Number>/<Number>|
+[(any|all):]numberrange=<Number>/<Number>|
+```
+
+### 7.41.02
+
+Added option `ownername` to `gam info|print courses` to have GAM display the course owners full name;
+there is an extra API call per course to get the name.
+
+Added option `creatorname` to `gam print course-announcements|course-materials|course-works` to have
+GAM display the item creators full name; there is an extra API call per course to get the name.
+
+After creating a group, it may be sometime, e.g. 30-45 seconds, before members can
+successfully be added to the group even though the API reported that the group was created.
+The following options can be used with `gam create group` to verify that the group is actually ready to be updated.
+This will be most useful in scripts that are used to create and then populate groups.
+```
+verifycreationretries <Integer> - Verify group creation, defaults to 0, no verification performed, range 0-20
+verifycreationinitialdelay <Integer> - Number of seconds to delay before first verification performed, defaults to 5, range 0-60
+verifycreationretrydelay <Integer> - Number of seconds to delay between verificaton retries, defaults to 5, range 1-60
+```
+
+If you have a script that deletes a group and then immediately tries to create a new group with the same email address,
+you may run into issues. There seems to be a 30-45 second window after the deletion in which a couple
+of strange errors can occur on the creation: `Resource not found` and `Duplicate`.
+The following options can be used with `gam create group` to handle these errors. This will be most useful
+in scripts that are used to delete and then immediately recreate groups.
+```
+recentdeleteretries <Integer> - Handle group delete/create errors, defaults to 0, no errors handled, range 0-20
+recentdeleteretrydelay <Integer> - Number of seconds to delay between retries, defaults to 5, range 1-60
+```
+
+Added the following to `<RowValueFilter>` used in CSV input/output row filtering; these are
+synonyms for `count` and `countrange`.
+```
+[(any|all):]number<Operator><Number>|
+[(any|all):]numberrange!=<Number>/<Number>|
+[(any|all):]numberrange=<Number>/<Number>|
+```
+
+### 7.41.01
+
+Fixed bug in `gam print cigroups members managers owners countsonly totalcount internal external` that caused a trap.
+
+### 7.41.00
+
+Upgraded to Python 3.14.4 and OpenSSL 4.0.0.
+
+### 7.40.03
+
+Added option `whocanaddexternalmembers only_owners_can_add_external_members|end_users_can_add_external_members` to `<GroupSettingsAttribute>`.
+It appears that `allowexternalmembers true` must be set in the same command.
+Added option `whocanaddexternalmembers` to `<GroupFieldName>`.
+These options are not in general release as of 2026-04-13; experiment.
+
+### 7.40.02
+
+Updated `gam info|print cigroups` and `gam print|show cigroup-members` to handle trap caused
+by API returning invalid member data; `preferredMemberKey` with no `id`.
+
+### 7.40.01
+
+Updated `gam <UserTypeEntity> print filelist|filecounts` to handle the `permissionDetails` subfield
+of the `permissions` field for My Drives; this useful when trying to display permission inheritance.
+An additional API call per file is required to get the `permissionDetails` subfield.
+```
+gam user user@domain.com print filelist fields id,name,mimetype,basicpermissions,permissiondetails oneitemperrow
+gam user user@domain.com print filelist fields id,name,mimetype,basicpermissions,permissiondetails pm inherited false em pmfilter oneitemperrow
+```
+
+### 7.40.00
+
+Updated `gam print|show businessprofileaccounts` (client access) to
+`gam <UserTypeEntity> print|show businessprofileaccounts` (service account access).
+You'll need to run `gam user user@domain.com update serviceaccount` and
+select `2)  Business Account Management API`.
+
+### 7.39.08
+
+Fixed bug in `gam oauth create` that caused a trap when `0)  Business Account Management API` was selected.
+
+Upgraded to Python 3.14.4 on macOS and Windows; Linux is still 3.14.3.
+
+### 7.39.07
+
+Upgraded to OpenSSL 3.6.2.
+
+### 7.39.06
+
+Fixed bug in `gam version checkrc`.
+
+### 7.39.05
+
+Added optional argument `preview` to `updateprimaryemail <RegularExpression> <EmailReplacement> [preview]`
+for the following commands that causes GAM to preview, but not perform, primary email address changes.
+This allows verification of the primary email address changes before commiting the changes.
+```
+gam update group <GroupEntity>
+gam update cigroup <GroupEntity>
+gam <UserTypeEntity> update user
+```
+
+### 7.39.04
+
+Added `updateprimaryemail <RegularExpression> <EmailReplacement>` option to
+`gam update group <GroupEntity>` and `gam update cigroup <GroupEntity>` to allow modifying
+the group's current primary email address.
+For example, to change the domain of a set of groups from the current domain.com to newdomain.com:
+```
+gam update group csvfile Groups.csv:email updateprimaryemail "^(.+)@domain.com$" "\1@newdomain.com"
+```
+
+### 7.39.03
+
+Added the following options to `gam <UserTypeEntity> create chatspace` that can be used to capture
+space details when creating chat spaces in bulk.
+```
+csv [todrive <ToDriveAttribute>*] [formatjson [quotechar <Character>]] (addcsvdata <FieldName> <String>)*
+```
+
+See: https://github.com/GAM-team/GAM/wiki/Users-Chat#bulk-build-chat-spaces
+
+### 7.39.02
+
+Fixed progress messages for `gam <UserTypeEntity> print filelist` when permissions were being
+displayed/matched for Shared Drives.
+
+### 7.39.01
+
+Updated `gam <UserTypeEntity> transfer drive <UserItem>` to handle the following error:
+```
+ERROR: 403: cannotDeletePermission - The authenticated user cannot delete the permission.
+```
+
+### 7.39.00
+
+Deleted variable `enforce_expansive_access` from `gam.cfg` and removed option `enforceexpansiveaccess`
+from the following commands as expansive access is now always enforced by Google on My Drives.
+```
+gam <UserTypeEntity> delete permissions
+gam <UserTypeEntity> delete drivefileacl
+gam <UserTypeEntity> update drivefileacl
+gam <UserTypeEntity> copy drivefile
+gam <UserTypeEntity> move drivefile
+gam <UserTypeEntity> transfer ownership
+gam <UserTypeEntity> claim ownership
+```
+
+### 7.38.02
+
+Added license SKU `1010470009` for `AI Expanded Access`; abbreviation `aiexpandedaccess`.
+
+Renamed license SKU `1010470001` from `Gemini Enterprise` to `Gemini Enterprise - Legacy`.
+
+### 7.38.01
+
+Added `root` as a synonym for '/' in command line arguments that specify an OU.
+This is to avoid issues where a stand-alone `/` on the command line may be mis-interpreted
+by the command line interpreter as a reference to the file system root.
+
+### 7.38.00
+
+Added variable `gcp_org_id` to `gam.cfg` that is used by the following commands;
+by setting the value, additional API calls are eliminated.
+```
+gam create project
+gam create gcpfolder
+gam create|update|delete caalevel
+gam print|show caalevels
+gam print|show tokens gcpdetails
+```
+You can get and set the `gam.cfg/gcp_org_id` value with these commands:
+```
+$ gam info gcporgid
+organizations/906207637890
+$ gam config gcp_org_id organizations/906207637890 save
+```
+
+You can get and set the `gam.cfg/customer_id` value with these commands:
+```
+$ gam info customerid     
+C78abc9de
+$ gam config customer_id C78abc9de save
+```
+
+Added the following options to `gam report <ActivityApplicationName>`.
+```
+applicationinfofilter <String>
+networkinfofilter <String>
+statusfilter <String>
+includesensitivedata
+```
+
+### 7.37.00
+
+Added new client access scopes used by `gam print tokens`.
+```
+[*] 52)  Resource Manager API - Organizations readonly
+[*] 53)  Resource Manager API - Projects readonly
+```
+
+Added option `gcpdetails` to `gam print tokens` that uses these scopes to get additional project information.
+
+### 7.36.03
+
+Added command to send email replies that causes Gmail to recognize the message
+in conversation mode for the user sending the reply and the user receiving the reply;
+GAM supplies the necessary headers and options.
+```
+gam <UserTypeEntity> sendreply
+        (((query <QueryGmail> [querytime<String> <Date>]*) [or|and])+) | (ids <MessageIDEntity>)
+        [replyto <EmailAddress>]
+        [subject <String>] [<MessageContent>] [html [<Boolean>]]
+        (attach <FileName> [charset <CharSet>])*
+        (embedimage <FileName> <String>)*
+        (<SMTPDateHeader> <Time>)* (<SMTPHeader> <String>)* (header <String> <String>)*
+
+gam user user@domain.com sendreply query "rfc822MsgId:<CAAMmEdqj43...1OsQ@mail.gmail.com>" textmessage "Thanks for the information"
+gam user user@domain.com sendreply ids 19cfc3506c02c22b textmessage "Thanks for the information"
+```
+
+* See: https://github.com/GAM-team/GAM/wiki/Send-Email#conversation-mode
+
+### 7.36.02
+
+Added option `threadid <String>` to `gam [<UserTypeEntity>] sendemail` that causes Gmail to recognize the message
+in conversation mode in for the user sending the message.
+
+* See: https://github.com/GAM-team/GAM/wiki/Send-Email#conversation-mode
+
+### 7.36.01
+
+Fixed bug in `gam info|print|show policies` where the `policyQuery/query` field was not displayed.
+
+Added option `noidmapping` to `gam info|print|show policies` to suppress adding the `policyQuery/groupEmail` and
+`policyQuery/orgUnitPath` name fields that are mapped from the `policyQuery/group` and `policyQuery/orgInit` id fields.
+
+### 7.36.00
+
+Added options `filtermultiattrtype` and filtermultiattrcustom` to `gam info user` and
+`gam print users` that support filtering `<UserMultiAttribute>` display based on `type` or `customType`.
+
+```
+<UserMultiAttributeFilterName> ::=
+        address|addresses|
+        externalid|externalids|
+        im|ims|
+        keyword|keywords|
+        location|locations|
+        orgainzation|organizations|
+        otheremail|otheremails|
+        phone|phones|
+        relation|relations|
+        website|websites
+```
+
+* `filtermultiattrtype <UserMultiAttributeFilterName> <String>` - Display `<UserMultiAttributeFilterName>` if its `type` is `<String>`
+* `filtermultiattrcustom <UserMultiAttributeFilterName> <String>` - Display `<UserMultiAttributeFilterName>` if its `customType` is `<String>`
+
+```
+gam info user user@domain.com quick filtermultiattrtype organizations work filtermultiattrcustom phones private
+```
+
+### 7.35.03
+
+Updated `gam <UserTypeEntity> print filelist|filecounts` to handle options `showsize` and `showsizeunits` as independent options.
+* `showsize` - Display a column `Size` with a byte count
+* `showsizeunits` - Display a column `SizeUnits` with a formatted size with units
+
+If you select both options, you can sort multiple rows using the `Size` column.
+
+### 7.35.02
+
+Added option `showsizeunits` to `gam gam <UserTypeEntity> print filelist|filecounts` as an alternative to option `showsize`.
+* `showsize` - 31549200951 - This is a byte count
+* `showsizeunits` - 31.55 GB - This is as shown in the Admin console
+
+### 7.35.01
+
+The following commands have been updated to not verify the existence of `gam.cfg` credentials files
+as the WARNING messages about the missing files can be confusing to new users setting up GAM.
+```
+gam checkconn
+gam oauth|oauth2
+gam version
+```
+
+### 7.35.00
+
+Windows `gam-7.wx.yz-x86_64.msi` has been replaced with `gam-7.wx.yz-x86_64.exe`.
+
+Windows `gam-7.wx.yz-arm64.msi` has been replaced with `gam-7.wx.yz-arm64.exe`.
+
+Updated cacerts.pem to avoid to following error in `gam checkconn`.
+```
+Checking raw.githubusercontent.com (185.199.110.133) (2)...                                         ERROR
+    Certificate verification failed. If you are behind a firewall / proxy server that does TLS / SSL inspection you may need to point GAM at your certificate authority file by setting cacerts_pem = /path/to/your/certauth.pem in gam.cfg.
+```
+
+If you have customized cacerts.pem, update your version with the `Operating CA: Let's Encrypt` values from the GAM default version.
+
+### 7.34.13
+
+Fixed bug in `gam info policies <CIPolicyNameEntity> ... formatjson` where extraneous line
+`Show Info 1 Policy` was displayed.
+
+### 7.34.12
+
+Fixed build errors that prevented Windows zip files from being created.
+
+Added option `returnidonly` to `gam create|update printer` that causes GAM to return just the ID
+of the printer.
+
+### 7.34.11
+
+Updated gam-install.sh script for macOS/Linux to properly config GAM when the answer to the following question is No.
+```
+Can you run a full browser on this machine? (usually Y for macOS, N for Linux if you SSH into this machine)
+```
+
+### 7.34.10
+
+Fixed bug where `formatjson quotechar <Character>` on the command line did not override `redirect csv <FileName> multiprocess quotechar <Character>`.
+
+### 7.34.09
+
+Updated `gam <UserTypeEntity> update photo` to delete the user's existing photo
+before performing the update as the API update will succeed but not replace a user's existing self-set photo.
+
+### 7.34.08
+
+Rebuild to avoid the following error:
+```
+requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (6.0.0.post1)/charset_normalizer (3.4.4) doesn't match a supported version!
+```
+
+### 7.34.07
+
+Added the following command to create a guest user.
+* See: https://support.google.com/a/answer/16558545
+```
+gam create guestuser <EmailAddress>
+```
+
+Added the following items to `<UserFieldName>`:
+* `guestaccountinfo` - Additional guest-related metadata fields
+* `isguestuser` - Indicates if the inserted user is a guest
+
+### 7.34.06
+
+Added option `copyfolderpermissions [<Boolean>]` to `gam <UserTypeEntity> copy|move drivefile`.
+
+When `copyfolderpermissions false` is specified, no folder permissions are copied; this simplifies
+disabling all folder permission copying.
+
+When not specified or `copyfolderpermissions [true]` is specified, folder permissions are copied based on the following options:
+```
+copymergewithparentfolderpermissions [<Boolean>]
+copymergedtopfolderpermissions [<Boolean>]
+copytopfolderpermissions [<Boolean>]
+copytopfolderiheritedpermissions [<Boolean>]
+copytopfoldernoniheritedpermissions never|always|syncallfolders|syncupdatedfolders
+copymergedsubfolderpermissions [<Boolean>]
+copysubfolderpermissions [<Boolean>]
+copysubfolderinheritedpermissions [<Boolean>]
+copysubfoldernoniheritedpermissions never|always|syncallfolders|syncupdatedfolders
+```
+
 ### 7.34.05
 
 Updated `gam report <ActivityApplictionName>` to perform a reverse chronological sort

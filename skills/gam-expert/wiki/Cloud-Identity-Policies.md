@@ -12,13 +12,13 @@
 
 ## Notes
 To use these commands you must update your client access authentication.
-You'll enter 20r to turn on the Cloud Identity Policy scope; then continue
+You'll enter 23 or 23r to turn on the Cloud Identity Policy scope; then continue
 with authentication.
 ```
 gam oauth delete
 gam oauth create
 ...
-[R] 20)  Cloud Identity - Policy (supports readonly)
+[R] 23)  Cloud Identity - Policy (supports readonly)
 ```
 You must enable access to policies in the GCP cloud console.
 
@@ -58,7 +58,7 @@ See: https://cloud.google.com/identity/docs/concepts/supported-policy-api-settin
 Display selected policies.
 ```
 gam info policies <CIPolicyEntity>
-        [nowarnings] [noappnames]
+        [nowarnings] [noappnames] [noidmappimg]
         [formatjson]
 ```
 
@@ -67,10 +67,14 @@ Select policies::
 * `settings/<String>` - A policy setting type, `settings/workspace_marketplace.apps_allowlist`
 * `<String>` - A policy setting type, `workspace_marketplace.apps_allowlist`
 
-By default, policy warnings are displayed, use the 'nowarnings` option to suppress their display.
+By default, policy warnings are displayed, use the `nowarnings` option to suppress their display.
 
-By default,  additional API calls are made for `settings/workspace_marketplace.apps_allowlist`
+By default, additional API calls are made for `settings/workspace_marketplace.apps_allowlist`
 to get the application name for the application ID. Use option `noappnames` to suppress these calls.
+
+By default, additional API calls are made to add the `policyQuery/groupEmail` and `policyQuery/orgUnitPath` fields
+that are mapped from the `policyQuery/group` and `policyQuery/orgUnit` fields. Use option `noidmapping'
+to suppress these calls and not add the additional fields.
 
 By default, Gam displays the information as an indented list of keys and values.
 * `formatjson` - Display the fields in JSON format.
@@ -78,7 +82,7 @@ By default, Gam displays the information as an indented list of keys and values.
 Display all or filtered policies.
 ```
 gam show policies
-        [filter <String>] [nowarnings] [noappnames]
+        [filter <String>] [nowarnings] [noappnames] [noidmappimg]
         [group <REMatchPattern>] [ou|org|orgunit <REMatchPattern>]
         [formatjson]
 ```
@@ -92,12 +96,16 @@ By default, policy warnings are displayed, use the `nowarnings` option to suppre
 By default,  additional API calls are made for `settings/workspace_marketplace.apps_allowlist`
 to get the application name for the application ID. Use option `noappnames` to suppress these calls.
 
+By default, additional API calls are made to add the `policyQuery/groupEmail` and `policyQuery/orgUnitPath` fields
+that are mapped from the `policyQuery/group` and `policyQuery/orgUnit` fields. Use option `noidmapping'
+to suppress these calls and not add the additional fields.
+
 By default, Gam displays the information as an indented list of keys and values.
 * `formatjson` - Display the fields in JSON format.
 
 ```
 gam print policies [todrive <ToDriveAttribute>*]
-        [filter <String>] [nowarnings] [noappnames]
+        [filter <String>] [nowarnings] [noappnames] [noidmappimg]
         [group <REMatchPattern>] [ou|org|orgunit <REMatchPattern>]
         [formatjson [quotechar <Character>]]
 ```
@@ -107,6 +115,10 @@ By default, all policies are displayed:
 * `ou|org|orgunit <REMatchPattern>` - Only display policies whose OU path matches the `<REMatchPattern>`
 
 By default, policy warnings are displayed, use the `nowarnings` option to suppress their display.
+
+By default, additional API calls are made to add the `policyQuery/groupEmail` and `policyQuery/orgUnitPath` fields
+that are mapped from the `policyQuery/group` and `policyQuery/orgUnit` fields. Use option `noidmapping'
+to suppress these calls and not add the additional fields.
 
 By default,  additional API calls are made for `settings/workspace_marketplace.apps_allowlist`
 to get the application name for the application ID. Use option `noappnames` to suppress these calls.
@@ -124,6 +136,11 @@ The `quotechar <Character>` option allows you to choose an alternate quote chara
 Print all service status policies.
 ```
 gam redirect csv ./ServiceStatusPolicies.csv print policies filter "setting.type.matches('.*service_status')"
+```
+
+Print Drive external sharing policies.
+```
+gam redirect csv ./DriveExternalSharingPolicies.csv print policies filter "setting.type.matches('settings/drive_and_docs.external_sharing')"
 ```
 
 Print all polices that apply directly to the OU "/Staff".

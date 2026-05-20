@@ -405,7 +405,7 @@ quotaBytesUsed - The number of storage quota bytes used by the file.
 size - Size in bytes of blobs and first party editor files.
 ```
 Previously, GAM used the `size` field when totaling file sizes, it now uses the `quotaBytesUsed` field.
-The option `sizefield quotabytesused|size` allows you to select which field to use.
+The option `sizefield quotabytesused|size` allows you to select which field to use; `quotabytesused` is the default.
 
 For most MIME types, the values are the same; for the following MIME types, `quotabytesused` is larger.
 ```
@@ -425,7 +425,7 @@ Display file details in indented keyword: value format. The two forms are equiva
 ```
 gam <UserTypeEntity> show fileinfo <DriveFileEntity>
         [returnidonly]
-        [filepath|fullpath] [folderpathonly [<Boolean>]] [pathdelimiter <Character>]
+        [filepath|fullpath] [folderpathonly|parentpathonly [<Boolean>]] [pathdelimiter <Character>]
         [allfields|<DriveFieldName>*|(fields <DriveFieldNameList>)]
         (orderby <DriveFileOrderByFieldName> [ascending|descending])*
         [showdrivename] [showshareddrivepermissions]
@@ -436,7 +436,7 @@ gam <UserTypeEntity> show fileinfo <DriveFileEntity>
         [formatjson]
 gam <UserTypeEntity> info drivefile <DriveFileEntity>
         [returnidonly]
-        [filepath|fullpath] [folderpathonly [<Boolean>]] [pathdelimiter <Character>]
+        [filepath|fullpath] [folderpathonly|parentpathonly [<Boolean>]] [pathdelimiter <Character>]
         [allfields|<DriveFieldName>*|(fields <DriveFieldNameList>)]
         (orderby <DriveFileOrderByFieldName> [ascending|descending])*
         [showdrivename] [showshareddrivepermissions]
@@ -455,6 +455,7 @@ Use `fullpath` to add additional path information indicating that a file is an O
 By default, the path to a file includes the file name as the last element of the path.
 Use `folderpathonly` to display only the folder names when displaying the path to a file. This folder only path
 an be used in  `gam <UserTypeEntity> create drivefolderpath` to recreate the folder hierarchy.
+Use `parentpathonly` to display only the parent folder names when displaying the path to a file.
 
 By default, file path components are separated by `/`; use `pathdelimiter <Character>` to use `<Character>` as the separator.
 
@@ -517,12 +518,12 @@ gam <UserTypeEntity> show filepath <DriveFileEntity>
         [returnpathonly]
         (orderby <DriveFileOrderByFieldName> [ascending|descending])*
         [stripcrsfromname]
-        [folderpathonly [<Boolean>]] [fullpath] [pathdelimiter <Character>]
+        [folderpathonly|parentpathonly [<Boolean>]] [fullpath] [pathdelimiter <Character>]
         [followshortcuts [<Boolean>]]
 gam <UserTypeEntity> print filepath <DriveFileEntity> [todrive <ToDriveAttribute>*]
         (orderby <DriveFileOrderByFieldName> [ascending|descending])*
         [stripcrsfromname] [oneitemperrow]
-        [fullpath] [folderpathonly [<Boolean>]] [pathdelimiter <Character>]
+        [fullpath] [folderpathonly|parentpathonly [<Boolean>]] [pathdelimiter <Character>]
         [followshortcuts [<Boolean>]]
 ```
 Use `returnpathonly` to display just the file path of the files in `<DriveFileEntity>`.
@@ -532,6 +533,7 @@ Use `fullpath` to add additional path information indicating that a file is an O
 By default, the path to a file includes the file name as the last element of the path.
 Use `folderpathonly` to display only the folder names when displaying the path to a file. This folder only path
 an be used in  `gam <UserTypeEntity> create drivefolderpath` to recreate the folder hierarchy.
+Use `parentpathonly` to display only the parent folder names when displaying the path to a file.
 
 By default, file path components are separated by `/`; use `pathdelimiter <Character>` to use `<Character>` as the separator.
 
@@ -619,8 +621,10 @@ This option is not available for `print|show filetree`.
 ```
 ((query <QueryDriveFile>) | (fullquery <QueryDriveFile>) | <DriveFileQueryShortcut>) (querytime<String> <Time>)*
 ```
+GAM initializes the query to `'me' in owners`.
+
 * `query "xxx"` - ` and xxx` is appended to the current query; you can repeat the query argument to build up a longer query.
-* `fullquery "xxx"` - The query is set to `xxx` eliminating the initial `'me' in owners`.
+* `fullquery "xxx"` - The query is set to `xxx` eliminating the initial `'me' in owners`. You must also use `showownedby any|others` as desired.
 * `<DriveFileQueryShortcut>` - Predefined queries
 
 Use the `querytime<String> <Time>` option to allow times, usually relative, to be substituted into the `query <QueryDriveFile>` option.
@@ -717,7 +721,7 @@ gam <UserTypeEntity> print filecounts [todrive <ToDriveAttribute>*]
         [filenamematchpattern <REMatchPattern>]
         <PermissionMatch>* [<PermissionMatchMode>] [<PermissionMatchAction>]
         [excludetrashed]
-        [showsize] [showmimetypesize]
+        [showsize] [showsizeunits] [showmimetypesize]
         [showlastmodification] [pathdelimiter <Character>]
         (addcsvdata <FieldName> <String>)*
         [summary none|only|plus] [summaryuser <String>]
@@ -733,7 +737,7 @@ gam <UserTypeEntity> show filecounts
         [filenamematchpattern <REMatchPattern>]
         <PermissionMatch>* [<PermissionMatchMode>] [<PermissionMatchAction>]
         [excludetrashed]
-        [showsize] [showmimetypesize]
+        [showsize] [showsizeunits] [showmimetypesize]
         [showlastmodification] [pathdelimiter <Character>]
         [summary none|only|plus] [summaryuser <String>]
 ```
@@ -746,7 +750,11 @@ saying that the query is invalid when, in fact, it is but the user does not have
 When `continueoninvalidquery` is true, GAM prints an error message and proceeds to the next user rather that terminating
 as it does now. Of course, if the query really is invalid, you will get the message for every user.
 
-The `showsize` option displays the total size (in bytes) of the files counted.
+The `showsize` option displays the total size (in bytes) of the files counted; e.g., `31549200951`.
+With `print filecounts`, this will be in a column labelled `Size`.
+
+The `showsizeunits` option displays the total size of the files counted with two decimal places and units; e.g., `31.55 GB`.
+With `print filecounts`, this will be in a column labelled `SizeUnits`.
 
 The `showmimetypesize` option displays the total size (in bytes) of each MIME type counted.
 
@@ -1098,9 +1106,9 @@ gam <UserTypeEntity> print|show filelist [todrive <ToDriveAttribute>*]
         [excludetrashed]
         [maxfiles <Integer>] [nodataheaders <String>]
         [countsonly [summary none|only|plus] [summaryuser <String>]
-                    [showsource] [showsize] [showmimetypesize]]
+                    [showsource] [showsize] [showsizeunits] [showmimetypesize]]
         [countsrowfilter]
-        [filepath|fullpath [folderpathonly [<Boolean>]] [pathdelimiter <Character>] [addpathstojson] [showdepth]] [buildtree]
+        [filepath|fullpath [folderpathonly|parentpathonly [<Boolean>]] [pathdelimiter <Character>] [addpathstojson] [showdepth]] [buildtree]
         [allfields|<DriveFieldName>*|(fields <DriveFieldNameList>)]
         [showdrivename] [showshareddrivepermissions]
         [(showlabels details|ids)|(includelabels <ClassificationLabelIDList>)]
@@ -1233,6 +1241,7 @@ JSON data rather than as additional columns
 By default, the path to a file includes the file name as the last element of the path.
 Use `folderpathonly` to display only the folder names when displaying the path to a file. This folder only path
 an be used in  `gam <UserTypeEntity> create drivefolderpath` to recreate the folder hierarchy.
+Use `parentpathonly` to display only the parent folder names when displaying the path to a file.
 
 By default, file path components are separated by `/`; use `pathdelimiter <Character>` to use `<Character>` as the separator.
 
@@ -1302,7 +1311,9 @@ The `summaryuser <String>` option  replaces the default summary user `Summary` w
 
 The `countsonly` suboption `showsource` adds additional columns `Source` and `Name` that identify the top level folder ID and Name from which the counts are derived.
 
-The `countsonly` suboption `showsize` adds an additional column `Size` that indicates the total size (in bytes) of the files represented on the row.
+The `countsonly` suboption `showsize` adds an additional column `Size` that indicates the total size (in bytes) of the files represented on the row; e.g., `31549200951`.
+
+The `countsonly` suboption `showsizeunits` adds an additional column `SizeUnits` that indicates the total size of the files represented on the row with two decimal places and units; e.g., `31.55 GB`.
 
 The `countsonly` suboption `showmimetypesize` adds additional columns `<MimeType>:Size` that indicate the total size (in bytes) of each MIME type.
 

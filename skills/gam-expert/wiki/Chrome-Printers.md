@@ -99,14 +99,25 @@ Typically, you will enclose the entire list in double quotes and quote each item
 ## Manage printers
 When creating a printer you must specify: `displayname`, `ou`, `uri` and `makeandmodel` or `driverless`.
 ```
-gam create printer <PrinterAttribute>+ [nodetails]
-gam update printer <PrinterID> <PrinterAttribute>+ [nodetails]
+gam create printer <PrinterAttribute>+ [nodetails|returnidonly]
+gam update printer <PrinterID> <PrinterAttribute>+ [nodetails|returnidonly]
 gam delete printer
         <PrinterIDList>|
         <FileSelector>|
 	<CSVFileSelector>
 ```
-By default, when a printer is created/updated, GAM outputs details of the printer; the `nodetails` option suppresses this output.
+By default, when a printer is created/updated, GAM outputs details of the printer.
+* `nodetails` - Suppress the datails output.
+* `returnidonly` - Display just the printer ID of the created printer as output
+
+To retrieve the printer ID with `returnidonly`:
+```
+Linux/MacOS
+printerId=$(gam create printer ... returnidonly)
+Windows PowerShell
+$printerId = & gam create printer ... returnidonly
+```
+The printer ID will only be valid when the return code of the command is 0; program accordingly.
 
 ## Display printers
 Display information about a single printer.
